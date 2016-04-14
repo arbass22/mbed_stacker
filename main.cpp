@@ -27,8 +27,9 @@ void setup() {
 }
 
 void buttonPressed() {
-    time_t newTime = time(NULL);
+    time_t newTime = time(NULL);    // Gets current time (in sec)
     if ((newTime - lastPress) >= WAIT_TIME) {
+        // Only count press if it has been at least WAIT_TIME seconds
         lastPress = newTime;
         stacker.buttonPressed();
     }
