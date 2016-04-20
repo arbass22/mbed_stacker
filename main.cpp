@@ -33,6 +33,7 @@ void setup() {
     stacker.attachDisplay(&displayBoard);
     button.rise(&buttonPressed);
     lastPress = time(NULL);
+    stacker.restart();
 }
 
 // A function to handle button presses
