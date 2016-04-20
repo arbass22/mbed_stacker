@@ -11,7 +11,7 @@ time_t lastPress;  // Time of last button press
 I2C i2c(p28,p27);
 Adafruit_8x16matrix matrix(&i2c);
 
-
+// Method stubs
 void buttonPressed();
 void setup();
 void displayBoard(int currState[8][16]);
@@ -27,22 +27,22 @@ int main() {
 
 // A function to handle setup for main
 void setup() {
-    matrix.begin(0x70);     // Begin I2C connection
-    matrix.setRotation(3);
-    set_time(1);            // Must set time for time() to return a value
-    stacker.attachDisplay(&displayBoard);
-    button.rise(&buttonPressed);
-    lastPress = time(NULL);
+    matrix.begin(0x70);                     // Begin I2C connection
+    matrix.setRotation(3);                  // Set matrix orientation
+    set_time(1);                            // Must set time for time() to return a value
+    stacker.attachDisplay(&displayBoard);   // Pass display function to Stacker game
+    button.rise(&buttonPressed);            // Bind button press function
+    lastPress = time(NULL);                 // Initialize last button pressed time
     stacker.restart();
 }
 
 // A function to handle button presses
 void buttonPressed() {
-    time_t newTime = time(NULL);    // Gets current time (in sec)
+    time_t newTime = time(NULL);            // Gets current time (in sec)
     if ((newTime - lastPress) >= WAIT_TIME) {
         // Only count press if it has been at least WAIT_TIME seconds
         lastPress = newTime;
-        stacker.buttonPressed();
+        stacker.buttonPressed();            // Pass responsibility to game
     }
 }
 
@@ -56,5 +56,5 @@ void displayBoard(int currState[8][16]) {
              matrix.drawPixel(x,y,1);
         }
     }
-    matrix.writeDisplay();
+    matrix.writeDisplay();                  // Write out to led matrix
 }
