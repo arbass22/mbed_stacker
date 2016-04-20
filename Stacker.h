@@ -3,10 +3,6 @@
 class Stacker {
     public:
         Stacker();
+        void attachDisplay(void (*display)(int[][16]));
         void buttonPressed();
-    protected:
-        int currState[16][8];
-        int currLevel;
-        int currDirection;
-
 };
