@@ -7,6 +7,7 @@ const int WAIT_TIME = 1;
 InterruptIn button(p23);
 Stacker stacker;
 time_t lastPress;  // Time of last button press
+int buttonPress = 0;
 
 I2C i2c(p28,p27);
 Adafruit_8x16matrix matrix(&i2c);
@@ -20,7 +21,18 @@ void displayBoard(int currState[8][16]);
 int main() {
     setup();
     stacker = Stacker();
+    stacker.restart();
     while(1) {
+        if (stacker.getGameState() == Playing) {
+            //time_t newTime = time(NULL);            // Gets current time (in sec)
+            if (buttonPress) {
+                buttonPress = 0;
+                stacker.buttonPressed();
+            }
+            stacker.keepPlaying();
+
+        }
+
 
     }
 }
@@ -42,7 +54,9 @@ void buttonPressed() {
     if ((newTime - lastPress) >= WAIT_TIME) {
         // Only count press if it has been at least WAIT_TIME seconds
         lastPress = newTime;
-        stacker.buttonPressed();            // Pass responsibility to game
+        //stacker.buttonPressed();            // Pass responsibility to game
+        buttonPress = 1;
+
     }
 }
 
