@@ -28,25 +28,26 @@ void nextState() {
     int newCurrState[8][16] = {};
 
     // Current state
-    for (int i = 0; i < 16; i++) {
-        for (int j = 0;  j < 8; j++) {
-            newCurrState[j][i] = currState[j][i];
+    for (int y = 0; y < 16; y++) {
+        for (int x = 0;  x < 8; x++) {
+            newCurrState[x][y] = currState[x][y];
         }
     }
     // Current level
-    for (int i = 0; i < currWidth; i++) {
-        newCurrState[currX + i][currY] = 1;
+    for (int x = 0; x < currWidth; x++) {
+        newCurrState[currX + x][currY] = 1;
     }
-    displayFunc(newCurrState);
+
+    displayFunc(newCurrState);      // Display board to leds
 
 }
 
 void Stacker::keepPlaying() {
-    if (timer.read_ms() > 400/(currY+1)) {
-        nextState();
+    // Check timer to see if next frame yet
+    if (timer.read_ms() > 200) {
+        nextState();     // Go to next state
         timer.reset();   // Reset timer to 0
     }
-
 }
 
 void Stacker::restart() {
@@ -88,9 +89,9 @@ void Stacker::attachDisplay(void (*display)(int[][16])) {
     Signals to the game that the user pressed the button.
 */
 void Stacker::buttonPressed() {
-    printBoard();
-    //timer.detach();     // Lose the timer
-    for (int i = 0; i < currWidth; i++) {
+
+    int oldWidth = currWidth;       // Save current width for loop condition
+    for (int i = 0; i < oldWidth; i++) {
         if (currY == 0 || currState[currX + i][currY-1] == 1) {
             // Landed on stack or bottom row
             currState[currX + i][currY] = 1;
@@ -99,6 +100,7 @@ void Stacker::buttonPressed() {
             currWidth -= 1;
         }
     }
+
     if (currWidth == 0) {
         restart();
         return;
@@ -106,10 +108,6 @@ void Stacker::buttonPressed() {
     currY += 1;
     currX = 0;
     currDirection = 1;
-    //timer.attach(&nextState, 0.2);
-
-    //printf("Stacker Button Pushed\r\n");
-    //displayFunc(currState);
 }
 
 void Stacker::printBoard() {
