@@ -20,19 +20,20 @@ void displayBoard(int currState[8][16]);
 
 int main() {
     setup();
-    stacker = Stacker();
-    stacker.restart();
+
+    // Begin loop
     while(1) {
-        if (stacker.getGameState() == Playing) {
-            //time_t newTime = time(NULL);            // Gets current time (in sec)
+        GameState state = stacker.getGameState();
+        if (state == Playing) {
             if (buttonPress) {
-                buttonPress = 0;
                 stacker.buttonPressed();
+                buttonPress = 0;
             }
             stacker.keepPlaying();
-
+        } else if (buttonPress) {
+             stacker.restart();
+             buttonPress = 0;
         }
-
 
     }
 }
@@ -42,21 +43,21 @@ void setup() {
     matrix.begin(0x70);                     // Begin I2C connection
     matrix.setRotation(3);                  // Set matrix orientation
     set_time(1);                            // Must set time for time() to return a value
+    stacker = Stacker();
     stacker.attachDisplay(&displayBoard);   // Pass display function to Stacker game
     button.rise(&buttonPressed);            // Bind button press function
     lastPress = time(NULL);                 // Initialize last button pressed time
-    stacker.restart();
+    stacker.restart();                      // Begin game
 }
 
 // A function to handle button presses
 void buttonPressed() {
     time_t newTime = time(NULL);            // Gets current time (in sec)
-    if ((newTime - lastPress) >= WAIT_TIME) {
-        // Only count press if it has been at least WAIT_TIME seconds
-        lastPress = newTime;
-        //stacker.buttonPressed();            // Pass responsibility to game
-        buttonPress = 1;
 
+    // Only count press if it has been at least WAIT_TIME seconds
+    if ((newTime - lastPress) >= WAIT_TIME) {
+        lastPress = newTime;                // Store new time
+        buttonPress = 1;                    // Sets flag to be used on next main() loop
     }
 }
 
