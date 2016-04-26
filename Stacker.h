@@ -14,4 +14,5 @@ class Stacker {
     private:
         void printBoard();
         void displayWin();
+        void displayLoss();
 };

@@ -1,8 +1,7 @@
 #include "Stacker.h"
 
-int levelSizes[16] = {4,4,4,4,4,3,3,3,3,2,2,2,2,1,1,1};
-//int levelSpeeds[16] = {1,1,1,2,2,2,3,3,4,4,5,5,5,5,6,6};
-int levelSpeeds[16] = {1,1,1,2,2,2,3,3,2,3,3,3,3,3,3,3};
+int levelSizes[16] = {4,4,4,4,3,3,3,3,2,2,2,2,1,1,1,1};
+int levelSpeeds[16] = {1,1,1,2,2,2,2,3,3,3,4,4,4,5,5,5};
 
 void (*displayFunc)(int[][16]);     // Stored function for displaying board externally
 GameState gameState = Playing;      // Current game state
@@ -40,7 +39,6 @@ void nextState() {
     }
 
     displayFunc(newCurrState);      // Display board to leds
-
 }
 
 void Stacker::keepPlaying() {
@@ -50,7 +48,7 @@ void Stacker::keepPlaying() {
     }
 
     // Check timer to see if next frame yet
-    if (timer.read_ms() > (275-40*(levelSpeeds[currY]))) {
+    if (timer.read_ms() > (250-40*(levelSpeeds[currY]))) {
         nextState();     // Go to next state
         timer.reset();   // Reset timer to 0
     }
@@ -106,8 +104,7 @@ void Stacker::buttonPressed() {
     }
     // No more pixels in moving bar left / you lose
     if (currWidth == 0) {
-        //restart();
-        gameState = Lost;
+        displayLoss();
         return;
     }
     currY += 1;         // Increase level
@@ -144,6 +141,22 @@ void Stacker::displayWin() {
 
     displayFunc(winImage);
 }
+void Stacker::displayLoss() {
+    gameState = Lost;
+    int lossImage[8][16] = {
+        { 0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,1,0,0,1,1,0,0,0,0,0 },
+        { 0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,1,0,0,1,1,0,0,0,0,0 },
+        { 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 }
+    };
+
+    displayFunc(lossImage);
+}
+
 
 GameState Stacker::getGameState() {
     return gameState;

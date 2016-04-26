@@ -2,12 +2,12 @@
 #include "Stacker.h"
 #include "Adafruit_LEDBackpack.h"
 
-const int WAIT_TIME = 1;
+const int WAIT_TIME_MS = 300;   // Required delay between button presses
 
 InterruptIn button(p22);
 Stacker stacker;
-time_t lastPress;  // Time of last button press
-int buttonPress = 0;
+Timer buttonTimer;        // Timer to record button presses
+int buttonPress = 0;      // Flag for button
 
 I2C i2c(p28,p27);
 Adafruit_8x16matrix matrix(&i2c);
@@ -23,7 +23,6 @@ int main() {
 
     // Begin loop
     while(1) {
-        printf("hll");
         GameState state = stacker.getGameState();
         if (state == Playing) {
             if (buttonPress) {
@@ -43,21 +42,17 @@ int main() {
 void setup() {
     matrix.begin(0x70);                     // Begin I2C connection
     matrix.setRotation(3);                  // Set matrix orientation
-    set_time(1);                            // Must set time for time() to return a value
-    stacker = Stacker();
     stacker.attachDisplay(&displayBoard);   // Pass display function to Stacker game
     button.rise(&buttonPressed);            // Bind button press function
-    lastPress = time(NULL);                 // Initialize last button pressed time
+    buttonTimer.start();                    // Start timer
     stacker.restart();                      // Begin game
 }
 
 // A function to handle button presses
 void buttonPressed() {
-    time_t newTime = time(NULL);            // Gets current time (in sec)
-
-    // Only count press if it has been at least WAIT_TIME seconds
-    if ((newTime - lastPress) >= WAIT_TIME) {
-        lastPress = newTime;                // Store new time
+    // Only count press if it has been at least WAIT_TIME_MS millseconds
+    if (buttonTimer.read_ms() >= WAIT_TIME_MS) {
+        buttonTimer.reset();                // Set timer back to 0
         buttonPress = 1;                    // Sets flag to be used on next main() loop
     }
 }
@@ -65,7 +60,7 @@ void buttonPressed() {
 
 // A function that writes an array to the led matrix.
 void displayBoard(int currState[8][16]) {
-    matrix.clear();
+    matrix.clear();                         // Clear write buffer
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 16; y++) {
            if (currState[x][y] == 1)
