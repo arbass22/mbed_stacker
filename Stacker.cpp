@@ -1,5 +1,8 @@
 #include "Stacker.h"
 
+int levelSizes[16] = {4,4,4,4,4,3,3,3,3,2,2,2,2,1,1,1};
+//int levelSpeeds[16] = {1,1,1,2,2,2,3,3,4,4,5,5,5,5,6,6};
+int levelSpeeds[16] = {1,1,1,2,2,2,3,3,2,3,3,3,3,3,3,3};
 
 void (*displayFunc)(int[][16]);     // Stored function for displaying board externally
 GameState gameState = Playing;      // Current game state
@@ -41,8 +44,13 @@ void nextState() {
 }
 
 void Stacker::keepPlaying() {
+    // Check for victory
+    if (currY > 15) {
+        displayWin();
+    }
+
     // Check timer to see if next frame yet
-    if (timer.read_ms() > 200) {
+    if (timer.read_ms() > (275-40*(levelSpeeds[currY]))) {
         nextState();     // Go to next state
         timer.reset();   // Reset timer to 0
     }
@@ -72,7 +80,6 @@ void Stacker::restart() {
 Stacker::Stacker() {
     timer.start();
 }
-
 
 
 /**
@@ -106,6 +113,9 @@ void Stacker::buttonPressed() {
     currY += 1;         // Increase level
     currX = 0;          // Move bar to left side of board
     currDirection = 1;  // Start bar moving right
+
+    if (currWidth > levelSizes[currY])
+        currWidth = levelSizes[currY];
 }
 
 void Stacker::printBoard() {
@@ -117,6 +127,22 @@ void Stacker::printBoard() {
     }
     printf("\r\n");
 
+}
+
+void Stacker::displayWin() {
+    gameState = Won;
+    int winImage[8][16] = {
+        { 0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0 },
+        { 0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0 },
+        { 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0 }
+    };
+
+    displayFunc(winImage);
 }
 
 GameState Stacker::getGameState() {

@@ -13,4 +13,5 @@ class Stacker {
         void keepPlaying();
     private:
         void printBoard();
+        void displayWin();
 };

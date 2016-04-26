@@ -4,7 +4,7 @@
 
 const int WAIT_TIME = 1;
 
-InterruptIn button(p23);
+InterruptIn button(p22);
 Stacker stacker;
 time_t lastPress;  // Time of last button press
 int buttonPress = 0;
@@ -23,6 +23,7 @@ int main() {
 
     // Begin loop
     while(1) {
+        printf("hll");
         GameState state = stacker.getGameState();
         if (state == Playing) {
             if (buttonPress) {
